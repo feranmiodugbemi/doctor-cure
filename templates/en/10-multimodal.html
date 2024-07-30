@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Talking Avatar</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #f5f5f5;
+            --text-color: #333;
+            --border-color: #ddd;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .avatar-container {
+            height: 400px;
+            background-color: #e9ecef;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .text-display {
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            min-height: 100px;
+        }
+
+        .input-group {
+            display: flex;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .input-group input[type="text"] {
+            flex-grow: 1;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #3a7bc8;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            cursor: pointer;
+            margin: 0 0.5rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        #imagePreview {
+            max-width: 100%;
+            margin-top: 1rem;
+        }
+
+        .checkbox-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .checkbox-list li {
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            background-color: var(--secondary-color);
+            border-radius: 4px;
+        }
+
+        .audio-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        #loading {
+            text-align: center;
+            font-style: italic;
+            color: #6c757d;
+        }
+
+        #processingModal .modal-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            animation: rotate 2s linear infinite;
+        }
+
+        .spinner .path {
+            stroke: var(--primary-color);
+            stroke-linecap: round;
+            animation: dash 1.5s ease-in-out infinite;
+        }
+
+        @keyframes rotate {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes dash {
+            0% {
+                stroke-dasharray: 1, 150;
+                stroke-dashoffset: 0;
+            }
+
+            50% {
+                stroke-dasharray: 90, 150;
+                stroke-dashoffset: -35;
+            }
+
+            100% {
+                stroke-dasharray: 90, 150;
+                stroke-dashoffset: -124;
+            }
+        }
+    </style>
+</head>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Advanced Talking Avatar</h1>
+        <p id="modelType" style="display: none">{{avatar_url}}</p>
+        <p id="modelVoice" style="display: none">{{avatar_voice}}</p>
+        <p id="modelBody" style="display: none">{{avatar_body}}</p>
+        <div id="avatar" class="avatar-container">Avatar will be displayed here</div>
+        <div id="textDisplay" class="text-display">Text will be displayed here.</div>
+        <div class="input-group">
+            <input type="text" id="messageInput" placeholder="Type a message...">
+            <button class="icon-btn" id="textBtn"><i class="fas fa-comment"></i></button>
+            <button class="icon-btn" id="imageBtn"><i class="fas fa-image"></i></button>
+            <button class="icon-btn" id="audioBtn"><i class="fas fa-microphone"></i></button>
+            <button class="btn" id="sendButton">Send</button>
+        </div>
+        <ul class="checkbox-list">
+            <li><input type="checkbox" id="checkbox1" value="Loss of appetite"> <label for="checkbox1">Loss of
+                    appetite</label></li>
+            <li><input type="checkbox" id="checkbox2" value="Headache"> <label for="checkbox2">Headache</label></li>
+            <li><input type="checkbox" id="checkbox3" value="Cough"> <label for="checkbox3">Cough</label></li>
+            <li><input type="checkbox" id="checkbox4" value="Diarrhea"> <label for="checkbox4">Diarrhea</label></li>
+            <li><input type="checkbox" id="checkbox5" value="Nausea"> <label for="checkbox5">Nausea</label></li>
+            <li><input type="checkbox" id="checkbox6" value="Sore throat"> <label for="checkbox6">Sore throat</label>
+            </li>
+            <li><input type="checkbox" id="checkbox7" value="Cold"> <label for="checkbox7">Cold</label></li>
+            <li><input type="checkbox" id="checkbox8" value="Stomach pain"> <label for="checkbox8">Stomach pain</label>
+            </li>
+            <li><input type="checkbox" id="checkbox9" value="Weakness"> <label for="checkbox9">Weakness</label></li>
+
+        </ul>
+        <div id="loading" style="display: none;">Loading...</div>
+    </div>
+
+    <div id="processingModal" class="modal">
+        <div class="modal-content">
+            <svg class="spinner" viewBox="0 0 50 50">
+                <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+            </svg>
+            <p>Processing your symptoms...</p>
+        </div>
+    </div>
+    <!-- Image Modal -->
+    <div id="imageModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Upload Image</h2>
+            <input type="file" id="imageUpload" accept="image/*">
+            <img id="imagePreview" style="display: none;">
+            <button id="uploadImageBtn" class="btn" style="display: none;">Upload</button>
+        </div>
+    </div>
+
+    <!-- Audio Modal -->
+    <div id="audioModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Record Audio</h2>
+            <div class="audio-controls">
+                <button id="recordButton" class="btn">Record</button>
+                <button id="playButton" class="btn" disabled>Play</button>
+                <button id="uploadAudioBtn" class="btn" style="display: none;">Upload</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js/+esm",
+                "three/examples/": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/",
+                "dompurify": "https://cdn.jsdelivr.net/npm/dompurify@3.0.6/+esm",
+                "marked": "https://cdn.jsdelivr.net/npm/marked@11.2.0/+esm",
+                "talkinghead": "https://cdn.jsdelivr.net/gh/met4citizen/TalkingHead@1.1/modules/talkinghead.mjs"
+            }
+        }
+    </script>
+    <script type="module">
+        import { TalkingHead } from "talkinghead";
+
+        let head; // TalkingHead instance
+        let sendingMessage = false;
+
+        // DOM Elements
+        const messageInput = document.getElementById("messageInput");
+        const sendButton = document.getElementById("sendButton");
+        const imageBtn = document.getElementById("imageBtn");
+        const audioBtn = document.getElementById("audioBtn");
+        const imageModal = document.getElementById("imageModal");
+        const audioModal = document.getElementById("audioModal");
+        const imageUpload = document.getElementById("imageUpload");
+        const imagePreview = document.getElementById("imagePreview");
+        const uploadImageBtn = document.getElementById("uploadImageBtn");
+        const recordButton = document.getElementById("recordButton");
+        const playButton = document.getElementById("playButton");
+        const uploadAudioBtn = document.getElementById("uploadAudioBtn");
+        const checkboxList = document.querySelector(".checkbox-list");
+        const model = document.getElementById("modelType").textContent;
+        const modelVoice = document.getElementById("modelVoice").textContent;
+        const modelBody = document.getElementById("modelBody").textContent;
+        // Event Listeners
+        document.addEventListener("DOMContentLoaded", initializeApp);
+        sendButton.addEventListener("click", handleMessageSubmit);
+        messageInput.addEventListener("keydown", handleEnterKey);
+        imageBtn.addEventListener("click", () => imageModal.style.display = "block");
+        audioBtn.addEventListener("click", () => audioModal.style.display = "block");
+        document.querySelectorAll(".close").forEach(elem => {
+            elem.addEventListener("click", function () {
+                this.closest(".modal").style.display = "none";
+            });
+        });
+        imageUpload.addEventListener("change", handleImageUpload);
+        uploadImageBtn.addEventListener("click", uploadImage);
+        recordButton.addEventListener("click", toggleRecording);
+        playButton.addEventListener("click", playRecording);
+        uploadAudioBtn.addEventListener("click", uploadAudio);
+        checkboxList.addEventListener("change", updateMessageInput);
+
+        // Initialize TalkingHead
+        async function initializeApp() {
+            const nodeAvatar = document.getElementById("avatar");
+            head = new TalkingHead(nodeAvatar, {
+                ttsEndpoint: "https://eu-texttospeech.googleapis.com/v1beta1/text:synthesize",
+                ttsApikey: "YOUR_TTS_API_KEY", // <- Change this
+                lipsyncModules: ["en", "fi"],
+                cameraView: "head",
+            });
+
+            const nodeLoading = document.getElementById("loading");
+            try {
+                await head.showAvatar(
+                    {
+                        url: model,
+                        body: modelBody,
+                        avatarMood: "neutral",
+                        ttsLang: "en-GB",
+                        ttsVoice: modelVoice,
+                        lipsyncLang: "en",
+                    },
+                    (ev) => {
+                        if (ev.lengthComputable) {
+                            let val = Math.min(
+                                100,
+                                Math.round((ev.loaded / ev.total) * 100)
+                            );
+                            nodeLoading.textContent = "Loading " + val + "%";
+                        }
+                    });
+            } catch (e) {
+                console.log(e);
+            }
+            nodeLoading.remove();
+        }
+
+        function showProcessingModal() {
+            const processingModal = document.getElementById("processingModal");
+            processingModal.style.display = "block";
+        }
+
+        function hideProcessingModal() {
+            const processingModal = document.getElementById("processingModal");
+            processingModal.style.display = "none";
+        }
+        // Handle message submission
+        async function handleMessageSubmit() {
+            showProcessingModal()
+            if (sendingMessage) return;
+            sendingMessage = true;
+            const text = messageInput.value.trim();
+            if (text === "") {
+                sendingMessage = false;
+                return;
+            }
+            try {
+                const response = await fetch('/api/multimodal/text', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text }),
+                });
+                const result = await response.json();
+                const textDisplay = document.getElementById("textDisplay");
+                textDisplay.textContent = result.message || "Text received successfully.";
+                hideProcessingModal()
+                showSuccessModal();
+                window.location.href = "/en/report";
+            } catch (error) {
+                hideProcessingModal()
+                console.error("Error sending text:", error);
+                alert("Error sending text:", error)
+            } finally {
+                sendingMessage = false;
+            }
+        }
+
+        function handleEnterKey(event) {
+            if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                handleMessageSubmit();
+            }
+        }
+
+        // Image handling
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = "block";
+                    uploadImageBtn.style.display = "block";
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function uploadImage() {
+            showProcessingModal()
+            const file = imageUpload.files[0];
+            if (file) {
+                const formData = new FormData();
+                formData.append("image", file);
+                fetch('/api/multimodal/image', {
+                    method: 'POST',
+                    body: formData,
+                })
+                    .then(response => response.json())
+                    .then(result => {
+                        console.log("Image uploaded successfully:", result);
+                        imageModal.style.display = "none";
+                        hideProcessingModal()
+                        showSuccessModal();
+                        window.location.href = "/en/report";
+                    })
+                    .catch(error => {
+                        hideProcessingModal()
+                        console.error("Error uploading image:", error);
+                        alert("Error uploading Image:", error)
+                    });
+            }
+
+        }
+
+        // Audio handling
+        let mediaRecorder;
+        let audioChunks = [];
+
+        function toggleRecording() {
+            if (recordButton.textContent === "Record") {
+                startRecording();
+            } else {
+                stopRecording();
+            }
+        }
+
+        async function startRecording() {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.ondataavailable = (event) => {
+                audioChunks.push(event.data);
+            };
+            mediaRecorder.start();
+            recordButton.textContent = "Stop";
+            playButton.disabled = true;
+            uploadAudioBtn.style.display = "none";
+        }
+
+        function stopRecording() {
+            mediaRecorder.stop();
+            recordButton.textContent = "Record";
+            playButton.disabled = false;
+            uploadAudioBtn.style.display = "block";
+        }
+
+        function playRecording() {
+            const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+            const audioUrl = URL.createObjectURL(audioBlob);
+            const audio = new Audio(audioUrl);
+            audio.play();
+        }
+
+        function uploadAudio() {
+            showProcessingModal()
+            const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+            const formData = new FormData();
+            formData.append("audio", audioBlob, "recording.wav");
+            fetch('/api/multimodal/audio', {
+                method: 'POST',
+                body: formData,
+            })
+                .then(response => response.json())
+                .then(result => {
+                    console.log("Audio uploaded successfully:", result);
+                    audioModal.style.display = "none";
+                    hideProcessingModal()
+                    showSuccessModal();
+                    window.location.href = "/en/report";
+                })
+                .catch(error => {
+                    hideProcessingModal()
+                    console.error("Error uploading audio:", error);
+                    alert("Error uploading Image:", error)
+                });
+        }
+
+        // Handle checkbox changes
+        function updateMessageInput() {
+            const selectedOptions = Array.from(checkboxList.querySelectorAll('input[type="checkbox"]:checked'))
+                .map(checkbox => checkbox.value);
+
+            if (selectedOptions.length > 0) {
+                messageInput.value = `I have ${selectedOptions.join(' ')}`;
+            } else {
+                messageInput.value = '';
+            }
+        }
+
+        // Show success modal
+        function showSuccessModal() {
+            const successModal = document.createElement("div");
+            successModal.className = "modal";
+            successModal.style.display = "block";
+            successModal.innerHTML = `
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>Success</h2>
+                    <p>The operation was successful.</p>
+                </div>
+            `;
+            document.body.appendChild(successModal);
+            successModal.querySelector(".close").addEventListener("click", () => {
+                successModal.style.display = "none";
+                document.body.removeChild(successModal);
+            });
+        }
+    </script>
+</body>
+
+</html>
