@@ -241,18 +241,12 @@
         const messageInput = document.getElementById("message-input");
         const chatMessages = document.getElementById("chat-messages");
         const loadingCircle = document.getElementById("loading-circle");
-        const reportButton = document.getElementById("report-button");
 
         sendButton.addEventListener("click", sendMessage);
         messageInput.addEventListener("keypress", function(e) {
           if (e.key === "Enter") {
             sendMessage();
           }
-        });
-
-        reportButton.addEventListener("click", function() {
-          // Add functionality for viewing diagnosis report
-          alert("Diagnosis report functionality to be implemented.");
         });
 
         function sendMessage() {

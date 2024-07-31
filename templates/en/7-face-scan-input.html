@@ -29,6 +29,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            overflow: hidden;
         }
         .camera-icon {
             font-size: 48px;
@@ -46,19 +47,190 @@
             cursor: pointer;
             border-radius: 5px;
         }
+        #submitButton {
+            display: none;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>Camera Access Interface</h2>
         <div class="camera-frame">
-            <div class="camera-icon">📷</div>
+            <video id="video" autoplay playsinline style="display:none;"></video>
+            <canvas id="canvas" style="display:none;"></canvas>
+            <img id="imagePreview" style="display:none; max-width:100%; max-height:100%;">
+            <div id="cameraIcon" class="camera-icon">📷</div>
         </div>
         <div>
-            <p>Confirmation: Ready to capture</p>
-            <button onclick="alert('Proceed clicked')">Proceed</button>
+            <p id="statusMessage">Give access to your webcam to take a picture</p>
+            <button id="captureButton" onclick="capturePicture()">Capture</button>
+            <button id="submitButton" onclick="uploadImage()">Submit Image</button>
+            <button id="backButton" onclick="backToSelect()" style="display:none;">Back to Select Input</button>
+            <input type="file" id="imageUpload" accept="image/*" onchange="handleImageUpload(event)" style="display:none;">
+            <button onclick="document.getElementById('imageUpload').click()">Upload Image</button>
         </div>
-        <p><small>Give access to your webcam to take a picture</small></p>
     </div>
+
+    <div id="processingModal" class="modal">
+        <div class="modal-content">
+            <div class="loader"></div>
+            <p>Processing your symptoms...</p>
+        </div>
+    </div>
+
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <h2>Success!</h2>
+            <p>Your image has been uploaded successfully.</p>
+            <button onclick="hideSuccessModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const captureButton = document.getElementById('captureButton');
+        const submitButton = document.getElementById('submitButton');
+        const backButton = document.getElementById('backButton');
+        const statusMessage = document.getElementById('statusMessage');
+        const cameraIcon = document.getElementById('cameraIcon');
+        const imagePreview = document.getElementById('imagePreview');
+        const imageUpload = document.getElementById('imageUpload');
+        const processingModal = document.getElementById('processingModal');
+        const successModal = document.getElementById('successModal');
+
+        async function setupCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                video.style.display = 'block';
+                cameraIcon.style.display = 'none';
+                statusMessage.textContent = 'Camera ready. Click "Capture" to take a picture.';
+            } catch (error) {
+                console.error('Error accessing the camera:', error);
+                statusMessage.textContent = 'Unable to access Cam. Might be due to unavailability or issue on your system.';
+                captureButton.style.display = 'none';
+                backButton.style.display = 'inline-block';
+            }
+        }
+
+        function capturePicture() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            canvas.style.display = 'block';
+            video.style.display = 'none';
+            submitButton.style.display = 'inline-block';
+            captureButton.style.display = 'none';
+            statusMessage.textContent = 'Picture captured. Click "Submit Image" to continue.';
+        }
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = "block";
+                    submitButton.style.display = "inline-block";
+                    video.style.display = 'none';
+                    canvas.style.display = 'none';
+                    cameraIcon.style.display = 'none';
+                    statusMessage.textContent = 'Image uploaded. Click "Submit Image" to continue.';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function uploadImage() {
+            showProcessingModal();
+            const file = imageUpload.files[0];
+            if (file) {
+                uploadFileToServer(file);
+            } else {
+                // If no file is selected, assume we're uploading from canvas
+                canvas.toBlob(function(blob) {
+                    uploadFileToServer(blob, "capture.jpg");
+                }, 'image/jpeg');
+            }
+        }
+
+        function uploadFileToServer(file, filename = file.name) {
+            const formData = new FormData();
+            formData.append("image", file, filename);
+            fetch('/api/multimodal/image', {
+                method: 'POST',
+                body: formData,
+            })
+                .then(response => response.json())
+                .then(result => {
+                    console.log("Image uploaded successfully:", result);
+                    hideProcessingModal();
+                    showSuccessModal();
+                    // Uncomment the following line if you want to redirect after successful upload
+                    // window.location.href = "/en/report";
+                })
+                .catch(error => {
+                    hideProcessingModal();
+                    console.error("Error uploading image:", error);
+                    alert("Error uploading Image: " + error);
+                });
+        }
+
+        function backToSelect() {
+            window.location.href = '/en/select-input'
+        }
+
+        function showProcessingModal() {
+            processingModal.style.display = "block";
+        }
+
+        function hideProcessingModal() {
+            processingModal.style.display = "none";
+        }
+
+        function showSuccessModal() {
+            successModal.style.display = "block";
+        }
+
+        function hideSuccessModal() {
+            successModal.style.display = "none";
+        }
+
+        setupCamera();
+    </script>
 </body>
 </html>
