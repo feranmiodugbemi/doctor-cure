@@ -6,7 +6,7 @@ import os
 from dotenv import load_dotenv
 import json
 import requests
-from redis import Redis
+import redis
 import io
 import datetime
 from flask import session, send_file
@@ -24,9 +24,29 @@ from pydub import AudioSegment
 from werkzeug.utils import secure_filename
 import tempfile
 import base64
+from supabase import create_client, Client
+import threading
+import ssl
 load_dotenv()
 
 app = Flask(__name__)
+
+def add_to_db(symptoms: str, disease1: str, disease2: str, disease3: str):
+    supabaseURL = os.getenv("SUPABASE_URL")
+    supabaseKEY = os.getenv("SUPABASE_KEY")
+    supabase: Client = create_client(supabaseURL, supabaseKEY)
+    response = (
+        supabase.table("Symptoms-and-predictions")
+        .insert(
+            {   
+                "symptoms" : symptoms, 
+                "disease1" : disease1,
+                "disease2" : disease2,
+                "disease3" : disease3
+            }
+            )
+        .execute()
+    )
 
 def transcribe_audio(audio_path):
     recognizer = sr.Recognizer()
@@ -206,11 +226,12 @@ def generate_conversation_report(buffer, patient_info, conversation, symptoms):
 host = os.getenv("REDIS_UPSTASH_HOST")
 password = os.getenv("REDIS_UPSTASH_PASSWORD")
 
-redis_instance = Redis(
+redis_instance = redis.StrictRedis(
     host=host,
     port=6379,
     password=password,
-    ssl=True
+    ssl=True,
+    ssl_cert_reqs=None
 )
 
 app.config["SESSION_TYPE"] = "redis"
@@ -451,7 +472,7 @@ def handle_image():
         session['disease1'] = diseases[0] if len(diseases) > 0 else ''
         session['disease2'] = diseases[1] if len(diseases) > 1 else ''
         session['disease3'] = diseases[2] if len(diseases) > 2 else ''
-
+        
     return jsonify({'message': 'Image received successfully'}), 200
 
 @app.route('/api/multimodal/audio', methods=['POST'])
@@ -509,6 +530,8 @@ def handle_audio():
             session['disease1'] = diseases[0] if len(diseases) > 0 else ''
             session['disease2'] = diseases[1] if len(diseases) > 1 else ''
             session['disease3'] = diseases[2] if len(diseases) > 2 else ''
+            thread = threading.Thread(target=add_to_db, args=(transcription_text, session['disease1'], session['disease2'], session['disease3']))
+            thread.start()
             return jsonify({
                 'message': 'Audio received successfully'
             }), 200
@@ -679,7 +702,8 @@ def diagnosis():
         session['disease1'] = diseases[0] if len(diseases) > 0 else ''
         session['disease2'] = diseases[1] if len(diseases) > 1 else ''
         session['disease3'] = diseases[2] if len(diseases) > 2 else ''
-
+        thread = threading.Thread(target=add_to_db, args=(symptoms, session['disease1'], session['disease2'], session['disease3']))
+        thread.start()
     return jsonify({}), 200
 
 
