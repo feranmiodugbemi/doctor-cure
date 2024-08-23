@@ -211,6 +211,8 @@
         <p id="modelType" style="display: none">{{avatar_url}}</p>
         <p id="modelVoice" style="display: none">{{avatar_voice}}</p>
         <p id="modelBody" style="display: none">{{avatar_body}}</p>
+        <p id="modelEmotion" style="display: none">{{emotion}}</p>
+        <p id="modelttsPitch" style="display: none">{{ttsPitch}}</p>
         <div id="avatar" class="avatar-container">Avatar will be displayed here</div>
         <div id="textDisplay" class="text-display">Text will be displayed here.</div>
         <div class="input-group">
@@ -305,6 +307,8 @@
         const model = document.getElementById("modelType").textContent;
         const modelVoice = document.getElementById("modelVoice").textContent;
         const modelBody = document.getElementById("modelBody").textContent;
+        const modelEmotion = document.getElementById("modelEmotion").textContent;
+        const modelttsPitch = document.getElementById("modelttsPitch").textContent;
         // Event Listeners
         document.addEventListener("DOMContentLoaded", initializeApp);
         sendButton.addEventListener("click", handleMessageSubmit);
@@ -339,10 +343,11 @@
                     {
                         url: model,
                         body: modelBody,
-                        avatarMood: "neutral",
+                        avatarMood: modelEmotion,
                         ttsLang: "en-GB",
                         ttsVoice: modelVoice,
                         lipsyncLang: "en",
+                        ttsPitch: modelttsPitch
                     },
                     (ev) => {
                         if (ev.lengthComputable) {

@@ -125,6 +125,8 @@
         <p id="modelType" style="display: none">{{avatar_url}}</p>
         <p id="modelVoice" style="display: none">{{avatar_voice}}</p>
         <p id="modelBody" style="display: none">{{avatar_body}}</p>
+        <p id="modelEmotion" style="display: none">{{emotion}}</p>
+        <p id="modelttsPitch" style="display: none">{{ttsPitch}}</p>
         <div class="speech-bubble">
           select your preferred input format to query LLM
         </div>
@@ -173,16 +175,19 @@
         const model = document.getElementById("modelType").textContent;
         const modelVoice = document.getElementById("modelVoice").textContent;
         const modelBody = document.getElementById("modelBody").textContent;
+        const modelEmotion = document.getElementById("modelEmotion").textContent;
+        const modelttsPitch = document.getElementById("modelttsPitch").textContent;
         try {
           nodeLoading.textContent = "Loading...";
           await head.showAvatar(
             {
               url: model,
               body: modelBody,
-              avatarMood: "neutral",
+              avatarMood: modelEmotion,
               ttsLang: "en-GB",
               ttsVoice: modelVoice,
               lipsyncLang: "en",
+              ttsPitch: modelttsPitch
             },
             (ev) => {
               if (ev.lengthComputable) {

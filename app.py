@@ -8,6 +8,7 @@ import json
 import requests
 import redis
 import io
+import random
 import datetime
 from flask import session, send_file
 from reportlab.lib import colors
@@ -290,7 +291,7 @@ def en_select_input():
             avatar_body = 'M'
     else:
         return redirect('/en/select-assistant')
-    return render_template("en/4-select-input.html", avatar_url=avatar_url, avatar_voice=avatar_voice, avatar_body=avatar_body)
+    return render_template("en/4-select-input.html", avatar_url=avatar_url, avatar_voice=avatar_voice, avatar_body=avatar_body, emotion=session["emotion"], ttsPitch=session["ttsPitch"])
 
 @app.route("/en/text-input")
 def en_text_input():
@@ -331,7 +332,7 @@ def en_multimodal():
             avatar_body = 'M'
         else:
             return redirect('/en/select-assistant')
-    return render_template("en/10-multimodal.html", avatar_url=avatar_url, avatar_voice=avatar_voice, avatar_body=avatar_body)
+    return render_template("en/10-multimodal.html", avatar_url=avatar_url, avatar_voice=avatar_voice, avatar_body=avatar_body, emotion=session["emotion"], ttsPitch=session["ttsPitch"])
 
 
 @app.route("/en/report")
@@ -387,7 +388,7 @@ def en_chat():
     else:
         return redirect('/en/select-assistant')
 
-    return render_template("en/9-chat.html", avatar_url=avatar_url, avatar_voice=avatar_voice, avatar_body=avatar_body)
+    return render_template("en/9-chat.html", avatar_url=avatar_url, avatar_voice=avatar_voice, avatar_body=avatar_body, emotion=session["emotion"], ttsPitch=session["ttsPitch"])
 
 @app.route('/api/multimodal/text', methods=['POST'])
 def handle_text():
@@ -572,7 +573,7 @@ def ig_select_input():
             avatar_body = 'M'
         else:
             return redirect('/ig/select-assistant')
-    return render_template("ig/4-select-input.html", avatar_url=avatar_url, avatar_voice=avatar_voice, avatar_body=avatar_body)
+    return render_template("ig/4-select-input.html", avatar_url=avatar_url, avatar_voice=avatar_voice, avatar_body=avatar_body, emotion=session["emotion"], ttsPitch=session["ttsPitch"])
 
 @app.route("/ig/text-input")
 def ig_text_input():
@@ -640,7 +641,7 @@ def ig_chat():
             avatar_body = 'M'
         else:
             return redirect('/ig/select-assistant')
-    return render_template("ig/9-chat.html", avatar_url=avatar_url, avatar_voice=avatar_voice, avatar_body=avatar_body)
+    return render_template("ig/9-chat.html", avatar_url=avatar_url, avatar_voice=avatar_voice, avatar_body=avatar_body, emotion=session["emotion"], ttsPitch=session["ttsPitch"])
 
 
 
@@ -660,6 +661,13 @@ def assistant_select():
         return jsonify({}), 400
     else:
         session["assistant"] = assistant
+        voice_configs = [
+            {"emotion": "happy", "ttsPitch": 7.0},
+            {"emotion": "angry", "ttsPitch": 15.0}
+        ]
+        selected_config = random.choice(voice_configs)
+        session["emotion"] = selected_config["emotion"]
+        session["ttsPitch"] = selected_config["ttsPitch"]
         return jsonify({}), 200
 
 @app.route('/api/diagnosis', methods=["POST"])
