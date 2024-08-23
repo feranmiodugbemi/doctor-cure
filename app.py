@@ -250,7 +250,9 @@ Session(app)
 CORS(app, supports_credentials=True, resources={r"/*": {"origins": [
     "http://localhost:5000", 
     "http://127.0.0.1:5000",
-    "https://virtual-doctor-jade.vercel.com"  # Add your Vercel domain here
+    "https://virtual-doctor-jade.vercel.com",
+    "https://doctor-cure.onrender.com",
+    "https://virtual-doctor.vercel.com"
 ]}})
 
 endpoint = os.getenv("API_ENDPOINT")
@@ -429,7 +431,8 @@ def handle_text():
         session['disease1'] = diseases[0] if len(diseases) > 0 else ''
         session['disease2'] = diseases[1] if len(diseases) > 1 else ''
         session['disease3'] = diseases[2] if len(diseases) > 2 else ''
-
+        thread = threading.Thread(target=add_to_db, args=(text, session['disease1'], session['disease2'], session['disease3']))
+        thread.start()
     return jsonify({'message': f'Text received: {text}'}), 200
 
 @app.route('/api/multimodal/image', methods=['POST'])
