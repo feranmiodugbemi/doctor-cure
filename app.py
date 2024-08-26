@@ -435,6 +435,7 @@ def handle_text():
         thread.start()
     return jsonify({'message': f'Text received: {text}'}), 200
 
+
 @app.route('/api/multimodal/image', methods=['POST'])
 def handle_image():
     if 'image' not in request.files:
