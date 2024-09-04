@@ -293,7 +293,7 @@ def en_select_input():
             avatar_body = 'M'
     else:
         return redirect('/en/select-assistant')
-    return render_template("en/4-select-input.html", avatar_url=avatar_url, avatar_voice=avatar_voice, avatar_body=avatar_body, emotion=session["emotion"], ttsPitch=session["ttsPitch"])
+    return render_template("en/4-select-input.html", avatar_url=avatar_url, avatar_voice=avatar_voice, avatar_body=avatar_body, emotion= session["config"]["emotion"], ttsPitch= session["config"][session["assistant"]]["ttsPitch"], ttsVolume = session["config"][session["assistant"]]["ttsVolume"], ttsRate = session["config"][session["assistant"]]["ttsRate"])
 
 @app.route("/en/text-input")
 def en_text_input():
@@ -334,7 +334,7 @@ def en_multimodal():
             avatar_body = 'M'
         else:
             return redirect('/en/select-assistant')
-    return render_template("en/10-multimodal.html", avatar_url=avatar_url, avatar_voice=avatar_voice, avatar_body=avatar_body, emotion=session["emotion"], ttsPitch=session["ttsPitch"])
+    return render_template("en/10-multimodal.html", avatar_url=avatar_url, avatar_voice=avatar_voice, avatar_body=avatar_body, emotion= session["config"]["emotion"], ttsPitch= session["config"][session["assistant"]]["ttsPitch"], ttsVolume = session["config"][session["assistant"]]["ttsVolume"], ttsRate = session["config"][session["assistant"]]["ttsRate"])
 
 
 @app.route("/en/report")
@@ -390,7 +390,7 @@ def en_chat():
     else:
         return redirect('/en/select-assistant')
 
-    return render_template("en/9-chat.html", avatar_url=avatar_url, avatar_voice=avatar_voice, avatar_body=avatar_body, emotion=session["emotion"], ttsPitch=session["ttsPitch"])
+    return render_template("en/9-chat.html", avatar_url=avatar_url, avatar_voice=avatar_voice, avatar_body=avatar_body, emotion= session["config"]["emotion"], ttsPitch= session["config"][session["assistant"]]["ttsPitch"], ttsVolume = session["config"][session["assistant"]]["ttsVolume"], ttsRate = session["config"][session["assistant"]]["ttsRate"])
 
 @app.route('/api/multimodal/text', methods=['POST'])
 def handle_text():
@@ -577,7 +577,7 @@ def ig_select_input():
             avatar_body = 'M'
         else:
             return redirect('/ig/select-assistant')
-    return render_template("ig/4-select-input.html", avatar_url=avatar_url, avatar_voice=avatar_voice, avatar_body=avatar_body, emotion=session["emotion"], ttsPitch=session["ttsPitch"])
+    return render_template("ig/4-select-input.html", avatar_url=avatar_url, avatar_voice=avatar_voice, avatar_body=avatar_body, emotion= session["config"]["emotion"], ttsPitch= session["config"][session["assistant"]]["ttsPitch"], ttsVolume = session["config"][session["assistant"]]["ttsVolume"], ttsRate = session["config"][session["assistant"]]["ttsRate"])
 
 @app.route("/ig/text-input")
 def ig_text_input():
@@ -645,7 +645,7 @@ def ig_chat():
             avatar_body = 'M'
         else:
             return redirect('/ig/select-assistant')
-    return render_template("ig/9-chat.html", avatar_url=avatar_url, avatar_voice=avatar_voice, avatar_body=avatar_body, emotion=session["emotion"], ttsPitch=session["ttsPitch"])
+    return render_template("ig/9-chat.html", avatar_url=avatar_url, avatar_voice=avatar_voice, avatar_body=avatar_body, emotion= session["config"]["emotion"], ttsPitch= session["config"][session["assistant"]]["ttsPitch"], ttsVolume = session["config"][session["assistant"]]["ttsVolume"], ttsRate = session["config"][session["assistant"]]["ttsRate"])
 
 
 
@@ -666,12 +666,35 @@ def assistant_select():
     else:
         session["assistant"] = assistant
         voice_configs = [
-            {"emotion": "happy", "ttsPitch": 7.0},
-            {"emotion": "angry", "ttsPitch": 15.0}
+            {
+                "emotion": "happy",
+                "male": {
+                    "ttsPitch": 0,
+                    "ttsVolume": 0,
+                    "ttsRate": 0.95
+                },
+                "female": {
+                    "ttsPitch": 0,
+                    "ttsVolume": 0,
+                    "ttsRate": 0.95
+                }
+            },
+            {
+                "emotion": "angry",
+                "male": {
+                    "ttsPitch": -20,
+                    "ttsVolume": 1.0,
+                    "ttsRate": 1.3
+                },
+                "female": {
+                    "ttsPitch": 10,
+                    "ttsVolume": 1.0,
+                    "ttsRate": 1.3
+                }
+            }
         ]
         selected_config = random.choice(voice_configs)
-        session["emotion"] = selected_config["emotion"]
-        session["ttsPitch"] = selected_config["ttsPitch"]
+        session["config"] = selected_config
         return jsonify({}), 200
 
 @app.route('/api/diagnosis', methods=["POST"])

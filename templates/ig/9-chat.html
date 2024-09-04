@@ -1,164 +1,192 @@
 <!DOCTYPE html>
 <html lang="ig">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mkparịta ụka na dọkịta</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 20px;
-        background-color: #f4f4f4;
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mkparịta ụka na dọkịta</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f4f4;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      padding: 20px;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .doctor {
+      width: 300px;
+      height: 300px;
+      margin-bottom: 20px;
+    }
+
+    .dialogue {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .speech-bubble {
+      position: relative;
+      background: #f1f1f1;
+      border-radius: 0.4em;
+      padding: 10px;
+      margin-bottom: 20px;
+      max-width: 80%;
+      align-self: flex-start;
+    }
+
+    .speech-bubble:after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 100%;
+      width: 0;
+      height: 0;
+      border: 10px solid transparent;
+      border-left-color: #f1f1f1;
+      border-right: 0;
+      margin-top: -10px;
+      margin-left: -10px;
+    }
+
+    .patient-response {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .patient-bubble {
+      position: relative;
+      background: #e0f7fa;
+      border-radius: 0.4em;
+      padding: 10px;
+      margin-left: 20px;
+      max-width: 80%;
+    }
+
+    .patient-bubble:before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: 100%;
+      width: 0;
+      height: 0;
+      border: 10px solid transparent;
+      border-right-color: #e0f7fa;
+      border-left: 0;
+      margin-top: -10px;
+      margin-right: -10px;
+    }
+
+    .patient-name {
+      margin-left: 10px;
+      font-weight: bold;
+    }
+
+    #message-input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 20px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    #send-button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    #send-button:hover {
+      background-color: #0056b3;
+    }
+
+    #loading {
+      margin-top: 10px;
+    }
+
+    .loading-circle {
+      display: none;
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 10px auto;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
       }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    .button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .button:hover {
+      background-color: #45a049;
+    }
+
+    @media (max-width: 768px) {
       .container {
-        max-width: 1000px;
-        margin: auto;
-        padding: 20px;
-        background-color: #fff;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        padding: 10px;
       }
+
       .doctor {
-        width: 300px;
-        height: 300px;
-        margin-bottom: 20px;
+        width: 200px;
+        height: 200px;
       }
-      .dialogue {
-        display: flex;
-        flex-direction: column;
-        align-items: stretch;
-        width: 100%;
-        max-width: 600px;
-      }
-      .speech-bubble {
-        position: relative;
-        background: #f1f1f1;
-        border-radius: 0.4em;
-        padding: 10px;
-        margin-bottom: 20px;
-        max-width: 80%;
-        align-self: flex-start;
-      }
-      .speech-bubble:after {
-        content: "";
-        position: absolute;
-        top: 50%;
-        left: 100%;
-        width: 0;
-        height: 0;
-        border: 10px solid transparent;
-        border-left-color: #f1f1f1;
-        border-right: 0;
-        margin-top: -10px;
-        margin-left: -10px;
-      }
-      .patient-response {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        width: 100%;
-        margin-bottom: 20px;
-      }
+
+      .speech-bubble,
       .patient-bubble {
-        position: relative;
-        background: #e0f7fa;
-        border-radius: 0.4em;
-        padding: 10px;
-        margin-left: 20px;
-        max-width: 80%;
+        max-width: 90%;
       }
-      .patient-bubble:before {
-        content: "";
-        position: absolute;
-        top: 50%;
-        right: 100%;
-        width: 0;
-        height: 0;
-        border: 10px solid transparent;
-        border-right-color: #e0f7fa;
-        border-left: 0;
-        margin-top: -10px;
-        margin-right: -10px;
-      }
-      .patient-name {
-        margin-left: 10px;
-        font-weight: bold;
-      }
-      #message-input {
-        width: 100%;
-        padding: 10px;
-        margin-top: 20px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        box-sizing: border-box;
-      }
-      #send-button {
-        margin-top: 10px;
-        padding: 10px 20px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        width: 100%;
-      }
-      #send-button:hover {
-        background-color: #0056b3;
-      }
-      #loading {
-        margin-top: 10px;
-      }
-      .loading-circle {
-        display: none;
-        width: 40px;
-        height: 40px;
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid #3498db;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin: 10px auto;
-      }
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-      .button-container {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        margin-top: 20px;
-      }
-      .button {
-        padding: 10px 20px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        text-decoration: none;
-        text-align: center;
-        margin-bottom: 10px;
-      }
-      .button:hover {
-        background-color: #45a049;
-      }
-      @media (max-width: 768px) {
-        .container {
-          padding: 10px;
-        }
-        .doctor {
-          width: 200px;
-          height: 200px;
-        }
-        .speech-bubble, .patient-bubble {
-          max-width: 90%;
-        }
-      }
-    </style>
-    <script type="importmap">
+    }
+  </style>
+  <script type="importmap">
       {
         "imports": {
           "three": "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js/+esm",
@@ -167,113 +195,125 @@
         }
       }
     </script>
-  </head>
-  <body>
-    <div class="container">
-      <div id="avatar" class="doctor"></div>
-      <div class="dialogue">
-        <div id="loading"></div>
-        <p id="modelType" style="display: none">{{avatar_url}}</p>
-        <p id="modelVoice" style="display: none">{{avatar_voice}}</p>
-        <p id="modelBody" style="display: none">{{avatar_body}}</p>
-        <p id="modelEmotion" style="display: none">{{emotion}}</p>
-        <p id="modelttsPitch" style="display: none">{{ttsPitch}}</p>
-        <div id="chat-messages">
-          <div class="speech-bubble">
-            Ndewo!, Ị na-kwenyesi ike na nnyocha gị?
-          </div>
-        </div>
-        <div class="loading-circle" id="loading-circle"></div>
-        <input
-          type="text"
-          id="message-input"
-          placeholder="Dee ozi gị..."
-        />
-        <button id="send-button">Zipu</button>
-        <div class="button-container">
-          <a href="/" class="button" id="home-button">Ụlọ</a>
-          <a href="{{ url_for('en_select_input') }}" class="button" onclick="">Nhọrọ ntinye</a>
-          <a href="{{ url_for('generate_report') }}" class="button" id="report-button" onclick="">Akwụkwọ Nnyocha</a>
+</head>
+
+<body>
+  <div class="container">
+    <div id="avatar" class="doctor"></div>
+    <div class="dialogue">
+      <div id="loading"></div>
+      <p id="modelType" style="display: none">{{avatar_url}}</p>
+      <p id="modelVoice" style="display: none">{{avatar_voice}}</p>
+      <p id="modelBody" style="display: none">{{avatar_body}}</p>
+      <p id="modelEmotion" style="display: none">{{emotion}}</p>
+      <p id="modelttsPitch" style="display: none">{{ttsPitch}}</p>
+      <p id="modelttsVolume" style="display: none">{{ttsVolume}}</p>
+      <p id="modelttsRate" style="display: none">{{ttsRate}}</p>
+      <div id="chat-messages">
+        <div class="speech-bubble">
+          Ndewo!, Ị na-kwenyesi ike na nnyocha gị?
         </div>
       </div>
+      <div class="loading-circle" id="loading-circle"></div>
+      <input type="text" id="message-input" placeholder="Dee ozi gị..." />
+      <button id="send-button">Zipu</button>
+      <div class="button-container">
+        <a href="/" class="button" id="home-button">Ụlọ</a>
+        <a href="{{ url_for('en_select_input') }}" class="button" onclick="">Nhọrọ ntinye</a>
+        <a href="{{ url_for('generate_report') }}" class="button" id="report-button" onclick="">Akwụkwọ Nnyocha</a>
+      </div>
     </div>
-    <script type="module">
-      import { TalkingHead } from "talkinghead";
-      let head;
-      document.addEventListener("DOMContentLoaded", async function (e) {
-        const nodeAvatar = document.getElementById("avatar");
-        head = new TalkingHead(nodeAvatar, {
-          ttsEndpoint:
-            "https://eu-texttospeech.googleapis.com/v1beta1/text:synthesize",
-          ttsApikey: "AIzaSyAWtezgKPFuyP45SX0ZyO7ZGRHjLePr2hE", // <- Change this
-          lipsyncModules: ["en", "fi"],
-          cameraView: "upper",
-        });
-        const nodeLoading = document.getElementById("loading");
-        const model = document.getElementById("modelType").textContent;
-        const modelVoice = document.getElementById("modelVoice").textContent;
-        const modelBody = document.getElementById("modelBody").textContent;
-        const modelEmotion = document.getElementById("modelEmotion").textContent;
-        const modelttsPitch = document.getElementById("modelttsPitch").textContent;
-        try {
-          nodeLoading.textContent = "Na-ebubata...";
-          await head.showAvatar(
-            {
-              url: model,
-              body: modelBody,
-              avatarMood: modelEmotion,
-              ttsLang: "en-GB",
-              ttsVoice: modelVoice,
-              lipsyncLang: "en",
-              ttsPitch: modelttsPitch
-            },
-            (ev) => {
-              if (ev.lengthComputable) {
-                let val = Math.min(
-                  100,
-                  Math.round((ev.loaded / ev.total) * 100)
-                );
-                nodeLoading.textContent = "Na-ebubata " + val + "%";
-              }
+  </div>
+  <script type="module">
+    import { TalkingHead } from "talkinghead";
+    let head;
+    document.addEventListener("DOMContentLoaded", async function (e) {
+      const nodeAvatar = document.getElementById("avatar");
+      head = new TalkingHead(nodeAvatar, {
+        ttsEndpoint:
+          "https://eu-texttospeech.googleapis.com/v1beta1/text:synthesize",
+        ttsApikey: "AIzaSyAWtezgKPFuyP45SX0ZyO7ZGRHjLePr2hE", // <- Change this
+        lipsyncModules: ["en", "fi"],
+        cameraView: "upper",
+      });
+      const nodeLoading = document.getElementById("loading");
+      const model = document.getElementById("modelType").textContent;
+      const modelVoice = document.getElementById("modelVoice").textContent;
+      const modelBody = document.getElementById("modelBody").textContent;
+      const modelEmotion = document.getElementById("modelEmotion").textContent;
+      const modelttsPitch = document.getElementById("modelttsPitch").textContent;
+      const modelttsVolume = document.getElementById("modelVolume").textContent;
+      const modelttsRate = document.getElementById("modelttsRate").textContent;
+      try {
+        nodeLoading.textContent = "Na-ebubata...";
+        await head.showAvatar(
+          {
+            url: model,
+            body: modelBody,
+            avatarMood: modelEmotion,
+            ttsLang: "en-GB",
+            ttsVoice: modelVoice,
+            lipsyncLang: "en",
+            ttsPitch: modelttsPitch,
+            ttsVolume: modelttsVolume,
+            ttsRate: modelttsRate
+          },
+          (ev) => {
+            if (ev.lengthComputable) {
+              let val = Math.min(
+                100,
+                Math.round((ev.loaded / ev.total) * 100)
+              );
+              nodeLoading.textContent = "Na-ebubata " + val + "%";
             }
-          );
-          nodeLoading.style.display = "none";
-        } catch (error) {
-          console.log(error);
-          nodeLoading.textContent = error.toString();
-        }
-
-        const sendButton = document.getElementById("send-button");
-        const messageInput = document.getElementById("message-input");
-        const chatMessages = document.getElementById("chat-messages");
-        const loadingCircle = document.getElementById("loading-circle");
-        const reportButton = document.getElementById("report-button");
-
-        sendButton.addEventListener("click", sendMessage);
-        messageInput.addEventListener("keypress", function(e) {
-          if (e.key === "Enter") {
-            sendMessage();
           }
-        });
+        );
+        nodeLoading.style.display = "none";
+        if (modelEmotion === "angry") {
+          head.animEmojis["😡"];
+          head.playGesture("😡", 10);
+        } else if (modelEmotion === "happy") {
+          head.animEmojis["😍"];
+          head.playGesture("😍", 10);
+        } else {
+          alert("Invalid emotion!");
+        }
+      } catch (error) {
+        console.log(error);
+        nodeLoading.textContent = error.toString();
+      }
 
-        reportButton.addEventListener("click", function() {
-          alert("A ga-eme usoro akwụkwọ nnyocha.");
-        });
+      const sendButton = document.getElementById("send-button");
+      const messageInput = document.getElementById("message-input");
+      const chatMessages = document.getElementById("chat-messages");
+      const loadingCircle = document.getElementById("loading-circle");
+      const reportButton = document.getElementById("report-button");
 
-        function sendMessage() {
-          const message = messageInput.value.trim();
-          if (message) {
-            addMessage("Gị", message);
-            messageInput.value = "";
-            loadingCircle.style.display = "block";
+      sendButton.addEventListener("click", sendMessage);
+      messageInput.addEventListener("keypress", function (e) {
+        if (e.key === "Enter") {
+          sendMessage();
+        }
+      });
 
-            fetch("/ig/chat", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ message: message }),
-            })
+      reportButton.addEventListener("click", function () {
+        alert("A ga-eme usoro akwụkwọ nnyocha.");
+      });
+
+      function sendMessage() {
+        const message = messageInput.value.trim();
+        if (message) {
+          addMessage("Gị", message);
+          messageInput.value = "";
+          loadingCircle.style.display = "block";
+
+          fetch("/ig/chat", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ message: message }),
+          })
             .then(response => response.json())
             .then(data => {
               loadingCircle.style.display = "none";
@@ -285,24 +325,25 @@
               console.error("Mperi:", error);
               addMessage("Dọkịta", "Ndo, mperi dapụtara mgbe a na-arụ ọrụ arịrịọ gị.");
             });
-          }
         }
+      }
 
-        function addMessage(sender, text) {
-          const messageElement = document.createElement("div");
-          messageElement.className = sender === "Gị" ? "patient-response" : "speech-bubble";
-          if (sender === "Gị") {
-            messageElement.innerHTML = `
+      function addMessage(sender, text) {
+        const messageElement = document.createElement("div");
+        messageElement.className = sender === "Gị" ? "patient-response" : "speech-bubble";
+        if (sender === "Gị") {
+          messageElement.innerHTML = `
               <div class="patient-bubble">${text}</div>
               <div class="patient-name">Gị</div>
             `;
-          } else {
-            messageElement.textContent = text;
-          }
-          chatMessages.appendChild(messageElement);
-          chatMessages.scrollTop = chatMessages.scrollHeight;
+        } else {
+          messageElement.textContent = text;
         }
-      });
-    </script>
-  </body>
+        chatMessages.appendChild(messageElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+    });
+  </script>
+</body>
+
 </html>
